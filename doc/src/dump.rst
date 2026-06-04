@@ -29,8 +29,6 @@ dump command
 
 :doc:`dump h5md <dump_h5md>` command
 ====================================
-:doc:`dump ldd <dump_ldd>` command
-====================================
 
 :doc:`dump molfile <dump_molfile>` command
 ==========================================
