@@ -320,7 +320,7 @@ read_data file format examples
 Atom style ldd is a basic atomic atom_style with per-atom fields added
 for local densities, gradients of local densities, LD energy
 contributions and SG energy contributions.  These can be reported using
-:doc:`compute per_atom <compute_per_atom>`, but this information is calculated just
+:doc:`compute propery/atom <compute_propery_atom>`, but this information is calculated just
 based on configurational data, and thus is not used for starting
 simulations.  read_data input therefore can follow usual atomic
 read_data input formats, and when hybridized with other atom styles, the
@@ -413,7 +413,7 @@ Example 2) for the .data file up to the "Atoms" section of the read_data file wh
 -------------------------
 
 writing ldd output
----------------
+-------------------------
 
 For each central particle :math:`I` and each particle type :math:`\beta`, there is a local density of :math:`\beta` particles that surround :math:`I` :math:`\rho_{\beta|I}`, and a corresponding gradient of that local density, :math:`\frac{\partial \rho_{\beta|I}}{\partial \boldsymbol{R}_I}`.
 If for example :math:`t_I = \alpha`, and an LDD interaction has been defined for the :math:`\beta|\alpha` local densities, then the :doc:`compute property/atom <compute_property_atom>` command can be used to access local density dependent quantities for each particle and print them in a custom dump style. 
@@ -450,7 +450,9 @@ Compute per atom accepts the following keywords for local densities, which corre
 
 These quantities can be dumped to a trajectory as usual for compute per-atom qtys 
 using e.g.
+
 .. code-block:: LAMMPS
+
    compute 1 all property/atom ldd_local_density1 ldd_energy1 ldd_grad_densityx1 ldd_grad_densityy1 ldd_grad_densityz1 ldd_total_energy 
 
    dump         4 all custom 500 bocs_traj.lmp id x y z vx vy vz fx fy fz c_1[*]

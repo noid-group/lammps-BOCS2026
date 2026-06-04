@@ -17,6 +17,7 @@ Examples
 """"""""
 
 .. code-block:: LAMMPS
+
    pair_coeff * * ldd.txt
    # ldd.txt contains
    pair_coeff 1 1 indicator lucy 0.0 7.2 self yes potential table/lin ldtable.1.1.dat
