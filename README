@@ -1,17 +1,18 @@
 This is the LAMMPS software package, modified by the noid-group to include local density potentials and square gradient potentials in the BOCS pkg. 
 
-= Noid Group Specific Context =
-This repository is a "pre-release" (currently pending - 05.25.26 - do not use yet). 
+====================== Noid Group Specific Context ================================
+This repository is a "pre-release" of the Noid-Group's local density simulation code which is being contributed to the mainline of lammps via PR473&.
+The purpose of this repository is to maintain reproducibility of the results presented in the noid group's "building a better BOCS" paper, particularly as code is refactored over time. 
 
-It will contain two branches BOCS-2026 D -> Which is a direct fork off of the lammps dev src code, forked on 05.25.26 and updated with this read me stuff
-                             BOCS-2026 LD -> Which contains noid-group's updates to the code intended for release. 
+Thus this repository contains two branches BOCS-2026 D -> Which is a direct fork off of the lammps dev src code, forked on 05.25.26 and updated with this read me stuff
+                             BOCS-2026 LD -> Which contains noid-group's updates to the code intended for release in the main-line pre-refactoring. It also contains doc/example updates for using this version of the code.
 
 We intend to release this copy ahead of the main-line lammps contribution in order to "earmark" and distribute the code used in the system tests recorded in "Building a Better BOCS" Lesniewski, DeLyser, Noid (2026).
 This code base is being contributed to LAMMPS dev, via PR#4737, but is divorced from the main-line development branch. 
-The LAMMPS src code in this repository is current up to the mainline of lammps as of PR#4737 commit [ee789e9](https://github.com/lammps/lammps/pull/4737/commits/ee789e95c635ba4264339c17399c5597aaa0010b)
+The LAMMPS src code in this repository (branch BOCS-2026 LD) is current up to the mainline of lammps as of PR#4737 commit [ee789e9](https://github.com/lammps/lammps/pull/4737/commits/ee789e95c635ba4264339c17399c5597aaa0010b)
 The LAMMPS doc src code and README files are ahead of this commit, and reflect what this repository is / how to use the BOCS package distributed herein.  
 
-= End Noid Group Specific Context = 
+================================ End Noid Group Specific Context ===========================================
 
 LAMMPS stands for Large-scale Atomic/Molecular Massively Parallel
 Simulator.
