@@ -10,15 +10,20 @@ Syntax
 
    atom_style ldd ntypes
    pair_style ldd rc
-   pair_coeff i j keyword value ...
+   pair_coeff * * file.ldd
+
+   # file.ldd
+   pair_coeff i j keyword args ...
 
 * atom_style arg = ntypes (number of types of particles)
 * pair_style arg = rc (cutoff of longest indicator function)
-* one or more keyword/value pairs must be appended
+* file.ldd = name of the local-density potential file 
+* The potential file contains ordered pair_coeff entries with keywords as below:
 
 .. parsed-literal::
 
-    keyword = *indicator* or *self* or *potential* or *gradient* or *ignore*
+    keyword = *name of input file* 
+      *indicator* or *self* or *potential* or *gradient* or *ignore*
       *indicator* values = type r0 rc
        type = dpd, lucy, shell, sphere, or smooth
        r0 = start of indicator function's decay to 0. must be 0.0 for dpd and lucy.
@@ -45,8 +50,11 @@ Examples
   #pair_style ldd maxcut
   pair_style ldd 7.2
 
-  #pair_coeff x surrounded by y indicator type r0 rC self args potential type args
+  pair_coeff * * input_file.ldd # This is an input file containing pairwise settings
+  
+  # input_file.ldd contains
   pair_coeff 1 1 indicator lucy 0.0 7.2 self yes potential table_spline ldtable.1.1.dat # 1|1
+  #pair_coeff x surrounded by y indicator type r0 rC self args potential type args
 
   #########  Example 2 : 2 types
 
@@ -55,15 +63,27 @@ Examples
   #pair_style ldd maxcut
   pair_style ldd 7.2
 
+  pair_coeff * * another_ldd_input.txt
+
+  # another_ldd_input.txt contains:
   #pair_coeff x surrounded by y indicator type r0 rC self args potential type args
   pair_coeff 1 1 indicator dpd 0.0 1.0 self no potential mdpd 25.0 # 1|1
   pair_coeff 1 2 indicator dpd 0.0 1.0 self no potential table_spline ldtable.1.2.dat gradient table_spline gradtable.1.2.dat # 2|1
   pair_coeff 2 1 indicator lucy 0.0 7.2 self no potential linear 1 1 # 1|2
   pair_coeff 2 2 ignore # 2|2
 
+  ######### Example 3: As a hybrid pair 
+  atom_style ldd 1 
+  pair_style hybrid/overlay table spline 4000 ldd 2.0
+  pair_coeff 1 1 table lammps_nb_regular_table.table AA 15.0
+  pair_coeff * * ldd ldd_input_file.txt
+
+
 Description
 """""""""""
 
+This version of the PKG-BOCS local density package has been saved to the noid-group for distributio nprimarily to provide a benchmarked record of the LD code as originally implemented. 
+There is now a mainline LAMMPS contribution 
 Style *ldd* implements the local density potential as first described by
 Pagonabarraga and Frenkel :ref:`(Pagonabarraga)<Pagonabarraga>` and
 additionally the square gradient of local densities first introduced by
@@ -127,6 +147,9 @@ the local density of :math:`\beta` sites around :math:`I` when
 automatically excluded and a warning will be generated to note that a
 requested self term in this case has been turned off.
 
+The below pages contain examples and details for each indicator and potential style. 
+The examples contained within give example syntax for the ldd input file called in the pair_coeff command above. 
+
 .. _ldd_indicator:
 .. toctree::
    :maxdepth: 1
@@ -175,8 +198,6 @@ or :doc:`atom_style hybrid <atom_style>` with ldd listed as an arg.
 This atom style requires an argument of ntypes, which is the number of
 particle types used in the simulation.
 
-To save the properties associated with the local density, use :doc:`dump
-style ldd <dump_ldd>`.
 
 The *indicator*, *self*, and *potential* keywords are mandatory, unless
 the *ignore* keyword is provided. The *gradient* keyword is optional.
@@ -205,7 +226,7 @@ forces in the simulation.
 Related commands
 """"""""""""""""
 
-:doc:`atom_style ldd <atom_style>`, :doc:`dump ldd <dump_ldd>`, :doc:`Howto_ldd <Howto_ldd>`
+:doc:`atom_style ldd <atom_style>`, :doc:`Howto_ldd <Howto_ldd>`
 
 ----------
 

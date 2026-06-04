@@ -1,5 +1,5 @@
-Local Density Dependent Potentials via LDD
-==========================================
+Local Density Dependent Potentials via LDD in PKG-BOCS
+======================================================
 
 .. contents::
    :local:
@@ -8,6 +8,14 @@ Local Density Dependent Potentials via LDD
 
 Overview
 --------
+
+This version of the documentation is intended to maximize reproducibility of the 
+results in the Noid lab's paper releasing version 5 of BOCS with the local density package. 
+We anticipate the lammps package to be refactored, refined and improved as we work with the lammps 
+developers to implement it in the mainline of the code, which will change how input is parsed 
+compared to the results in the paper. 
+If you intend to use this package for research purposes, 
+please see the official lammps distribution for an up to date / more stable / more efficient version of the code.
 
 The :doc:`LDD pair style <pair_ldd>` in the BOCS package implements
 potentials that are a function of the local density,
@@ -210,14 +218,20 @@ Example 1) A simple atomic input example using only tabulated LD potentials
 
    pair_style ldd 6.5 # Longest cutoff of all LD interactions
 
+
+
    # pair_coeff x y indicator keyword r0 rc self arg potential keyword args
+   pair_coeff * * ldd_input.txt
+
+   # Inside ldd_input.txt
    pair_coeff 1 1 indicator dpd 0.0 6.5 self yes potential table/lin LD_table.1.1.dat # type 1 surrounded by type 1, 1|1
-
    pair_coeff 1 2 ignore # type 1 surrounded by type 2 , 2|1
-   # n.b. As the above line shows, all 2^ntypes interactions must be specified even if its to note that no LD interaction should be used for this type, see keyword ignore for details in pair_style doc
    pair_coeff 2 1 indicator dpd 0.0 5.5 self no potential table/lin LD_table.2.1..dat # type 2 surrounded by type 1, 1|2
-
+   # n.b. As the above line shows, all 2^ntypes interactions must be specified even if its to note that no LD interaction should be used for this type, see keyword ignore for details in pair_style doc
    pair_coeff 2 2 indicator dpd 0.0 5.5 self yes potential table/line LD_table.2.2.dat # type 2 surrounded by type 2, 2|2
+   # End inside of ldd_input.txt 
+   
+   compute ldd all property/atom ldd_local_density1
 
    ## Run / Output
    run_style verlet
@@ -225,7 +239,7 @@ Example 1) A simple atomic input example using only tabulated LD potentials
    thermo 500
 
    fix 1 all nvt temp 300.0 300.0 100.0
-   dump 1 all ldd 500 dump.txt #A lammps trajectory file with LD info
+   dump 1 all custom 500 bocs_traj.lmp id type x y z vx vy vz c_ldd #A lammps trajectory file with LD info
 
    run 10000
 
@@ -266,12 +280,14 @@ Example 2) Molecular input example that layers tabulated pair, LD and SG interac
    pair_coeff * * table lammps_nb_ALL.table nb_All 15.0 # Pair interaction cutoff should be >= pair_coeff ldd cutoff
 
    #pair_coeff x y ldd indicator keyword r0 rc self arg potential keyword arg gradient keyword arg
-   pair_coeff 1 1 ldd indicator lucy 0.0 6.5 self no potential table/spline LD.1.1.dat gradient table/gradspline SG.1.1.dat
+   pair_coeff * * ldd ldd_input.txt
 
+   # INSIDE ldd_input.txt
+   pair_coeff 1 1 ldd indicator lucy 0.0 6.5 self no potential table/spline LD.1.1.dat gradient table/gradspline SG.1.1.dat
    pair_coeff 1 2 ldd indicator lucy 0.0 6.5 self no potential table/spline LD.1.2.dat
    pair_coeff 2 1 ldd indicator lucy 0.0 6.5 self no potential table/spline LD.2.1.dat
-
    pair_coeff 2 2 ldd indicator lucy 0.0 6.5 self no potential table/spline LD.2.2.dat gradient table/gradspline SG.2.2.dat
+   # End inside ldd_input.txt
 
    ## Run / Output
 
@@ -304,7 +320,7 @@ read_data file format examples
 Atom style ldd is a basic atomic atom_style with per-atom fields added
 for local densities, gradients of local densities, LD energy
 contributions and SG energy contributions.  These can be reported using
-:doc:`dump ldd <dump_ldd>`, but this information is calculated just
+:doc:`compute per_atom <compute_per_atom>`, but this information is calculated just
 based on configurational data, and thus is not used for starting
 simulations.  read_data input therefore can follow usual atomic
 read_data input formats, and when hybridized with other atom styles, the
@@ -396,16 +412,79 @@ Example 2) for the .data file up to the "Atoms" section of the read_data file wh
 
 -------------------------
 
-dump ldd output
+writing ldd output
 ---------------
 
 For each central particle :math:`I` and each particle type :math:`\beta`, there is a local density of :math:`\beta` particles that surround :math:`I` :math:`\rho_{\beta|I}`, and a corresponding gradient of that local density, :math:`\frac{\partial \rho_{\beta|I}}{\partial \boldsymbol{R}_I}`.
-If for example :math:`t_I = \alpha`, and an LDD interaction has been defined for the :math:`\beta|\alpha` local densities, then the :doc:`dump ldd <dump_ldd>` command will report :math:`\rho_{\beta|I}` and :math:`\frac{\partial \rho_{\beta|I}}{\partial \boldsymbol{R}_I}` in addition to the simulation x, v, and f information.
-:doc:`dump ldd <dump_ldd>` is essentially a custom lammps dump trajectory output with local density information.
+If for example :math:`t_I = \alpha`, and an LDD interaction has been defined for the :math:`\beta|\alpha` local densities, then the :doc:`compute property/atom <compute_property_atom>` command can be used to access local density dependent quantities for each particle and print them in a custom dump style. 
 
-See :doc:`dump ldd <dump_ldd>` for details.
+Compute per atom accepts the following keywords for local densities, which correspond to the following qtys: 
 
-This trajectory type is natively compatible with the `Bottom-up Open-source Coarse-graining Software <https://github.com/noid-group/BOCS>`_ which can be used to parameterize LD/SG potentials from atomistic data, as well as to convert these lammps trajectories to .trr files for analysis with `gromacs <https://www.gromacs.org/>`_ tools.
++------------------------+-----------------------------------+
+| key                    | per-atom qty                      |
++------------------------+-----------------------------------+
+| ldd_total_energy       | sum of all LD / SG interaction    |
+|                        | potentials site I is involved in  |
++------------------------+-----------------------------------+
+| ldd_gradnrgN           | with e.g. N=1,2 ... N_types       |
+|                        | energy of the type N surrounding I|
+|                        | SG interaction for site I         |
++------------------------+-----------------------------------+
+|                        | with e.g. N=1,2 ... N_types       |
+| ldd_energyN            | energy of the type N surrounding I|
+|                        | LD interaction for site I         |
++------------------------+-----------------------------------+
+| ldd_local_densityN     | with e.g. N=1,2 ... N_types       |
+|                        | The local density of type N       |
+|                        | surrounding each site I           |
++------------------------+-----------------------------------+
+| ldd_grad_densityxN     | with e.g. N= 1,2 .. N_types       |
+|                        | The x component of the            |
+|                        | gradient of the local density for |
+|                        | type N surrounding each site I    |
++------------------------+-----------------------------------+
+| ldd_grad_densityyN     | same as above. for the y component|
++------------------------+-----------------------------------+
+| ldd_grad_densityzN     | same as above. for the z component|
++------------------------+-----------------------------------+
+
+These quantities can be dumped to a trajectory as usual for compute per-atom qtys 
+using e.g.
+.. code-block:: LAMMPS
+   compute 1 all property/atom ldd_local_density1 ldd_energy1 ldd_grad_densityx1 ldd_grad_densityy1 ldd_grad_densityz1 ldd_total_energy 
+
+   dump         4 all custom 500 bocs_traj.lmp id x y z vx vy vz fx fy fz c_1[*]
+   dump         4 all custom 500 bocs_traj.lmp id mol x y z vx vy vz fx fy fz c_1[*]
+
+
+
+BOCS can read custom dumped trajectories written by LAMMPS provided that they are formatted correctly. 
+BOCS expects custom dumped trajectories to contain id, mol position, velocity and force information in the order presented above. (e.g. molecular atom styles and higher are required for direct processing)
+When LD information is printed, BOCS can analyze the LD information from these dumped trajectories provided that they are in the order presented above and labeled appropriately with BOCS style column names. 
+e.g. after the position/force information the local densities must be listed for each type, followed by the energy for each density type, followed by the x y and z gradient components for each type, followed by the total energy. 
+dump modify colname should be used to convert the column headers in the printout as follows for each computed quantity: 
+
++------------------------+-----------------------------------+
+| compute key            | BOCS ld traj key                  |
++------------------------+-----------------------------------+
+| ldd_total_energy       | lddttlnrg                         |
++------------------------+-----------------------------------+
+| ldd_gradnrgN           | gradnrgN                          |
++------------------------+-----------------------------------+
+| ldd_energyN            |  lddnrgN                          |
++------------------------+-----------------------------------+
+| ldd_local_densityN     | lddensN                           |
++------------------------+-----------------------------------+
+| ldd_grad_densityxN     | gradxN                            |
++------------------------+-----------------------------------+
+| ldd_grad_densityyN     | gradyN                            |
++------------------------+-----------------------------------+
+| ldd_grad_densityzN     | gradzN                            |
++------------------------+-----------------------------------+
+
+
+A trajectory formatted with LD info in this way is natively compatible with the `Bottom-up Open-source Coarse-graining Software <https://github.com/noid-group/BOCS>`_ which can be used to parameterize LD/SG potentials from atomistic data, as well as to convert these lammps trajectories to .trr files for analysis with `gromacs <https://www.gromacs.org/>`_ tools.
+A trajectory formatted as above without LD info is also natively compatible, BOCS can write a trajectory with LD info from such a file using its ldcalc tool.
 
 -------------
 
