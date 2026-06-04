@@ -18,6 +18,8 @@ Examples
 .. code-block:: LAMMPS
 
    pair_style ldd 1.0
+   pair_coeff * * input_file.ldd
+   # input_file.ldd contains
    pair_coeff 1 1 indicator dpd 0.0 1.0 self yes potential table_spline ldtable.1.1.dat
 
 Description

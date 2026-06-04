@@ -18,6 +18,8 @@ Examples
 .. code-block:: LAMMPS
 
    pair_style hybrid/overlay dpd 1.0 1.0 16802 ldd 0.75
+   pair_coeff * * ldd.txt
+   # ldd.txt contains e.g. 
    pair_coeff 1 1 dpd -40.0 4.5 1.0
    pair_coeff 1 1 ldd indicator dpd 0.0 1.0 self no potential mdpd 25.0
 

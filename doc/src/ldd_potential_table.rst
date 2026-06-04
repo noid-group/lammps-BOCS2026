@@ -17,7 +17,8 @@ Examples
 """"""""
 
 .. code-block:: LAMMPS
-
+   pair_coeff * * ldd.txt
+   # ldd.txt contains
    pair_coeff 1 1 indicator lucy 0.0 7.2 self yes potential table/lin ldtable.1.1.dat
    pair_coeff 1 1 indicator lucy 0.0 7.2 self yes potential table/spline ldtable.1.1.dat
    pair_coeff 2 1 indicator lucy 0.0 7.2 self no potential table/lin ldtable.2.1.dat gradient table/gradline sgtable.2.1.dat

@@ -18,6 +18,8 @@ Examples
 .. code-block:: LAMMPS
 
    pair_style ldd 7.2
+   pair_coeff * * ldd.txt
+   # ldd.txt contains
    pair_coeff 1 1 indicator lucy 0.0 7.2 self yes potential quadratic 2.0 -0.5 1.0
 
 .. parsed-literal::
